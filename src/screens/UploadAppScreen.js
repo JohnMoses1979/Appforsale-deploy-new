@@ -12,7 +12,8 @@ import { uploadAppApi, uploadAppDirectApi } from '../utils/apiService';
 import { COLORS } from '../theme';
 import { useMarketplace } from '../context/MarketplaceContext';
 import { Ionicons } from '@expo/vector-icons';
-
+import useCustomAlert from '../utils/useCustomAlert';
+import CustomAlertModal from '../components/CustomAlertModal';
 const BG     = '#0D1117';
 const CARD   = 'rgba(255,255,255,0.04)';
 const BORDER = 'rgba(255,255,255,0.09)';
@@ -92,6 +93,7 @@ export default function UploadAppScreen({ navigation, route }) {
   const [errors,       setErrors]       = useState(initialErrors);
   const [pickingImage, setPickingImage] = useState(false);
   const [loading,      setLoading]      = useState(false);
+    const { alertConfig, showAlert, hideAlert } = useCustomAlert();
 
   const updateField = (key, value) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -100,7 +102,7 @@ export default function UploadAppScreen({ navigation, route }) {
 
   const pickOneWithCrop = async () => {
     if (form.images.length >= 5) {
-      Alert.alert('Max 5 images', 'Remove an image before adding more.');
+      showAlert('Max 5 images', 'Remove an image before adding more.');
       return;
     }
     try {
@@ -118,13 +120,13 @@ export default function UploadAppScreen({ navigation, route }) {
         setForm(prev => ({ ...prev, images: [...prev.images, { uri: a.uri, width: a.width, height: a.height }] }));
         setErrors(prev => ({ ...prev, images: '' }));
       }
-    } catch { Alert.alert('Error', 'Unable to select image.'); }
+    } catch { showAlert('Error', 'Unable to select image.'); }
     finally { setPickingImage(false); }
   };
 
   const pickMultipleNoCrop = async () => {
     if (form.images.length >= 5) {
-      Alert.alert('Max 5 images', 'Remove an image before adding more.');
+      showAlert('Max 5 images', 'Remove an image before adding more.');
       return;
     }
     try {
@@ -143,7 +145,7 @@ export default function UploadAppScreen({ navigation, route }) {
         setForm(prev => ({ ...prev, images: [...prev.images, ...newImages] }));
         setErrors(prev => ({ ...prev, images: '' }));
       }
-    } catch { Alert.alert('Error', 'Unable to select images.'); }
+    } catch { showAlert('Error', 'Unable to select images.'); }
     finally { setPickingImage(false); }
   };
 
@@ -174,23 +176,24 @@ export default function UploadAppScreen({ navigation, route }) {
       if (isAdmin) {
         await uploadAppDirectApi(form);
         await refreshApps();
-        Alert.alert('✅ Published!', `"${form.title}" is now live in the marketplace.`,
+       showAlert('✅ Published!', `"${form.title}" is now live in the marketplace.`,
           [{ text: 'Go to Admin Home', onPress: () => navigation.navigate('AdminHome') }]);
       } else {
         // ✅ uploadAppApi — backend creates SUBMISSION notification for ADMIN only
         await uploadAppApi(form);
-        Alert.alert('✅ Submitted', 'App sent to admin for approval. It will be visible after approval.',
+        showAlert('✅ Submitted', 'App sent to admin for approval. It will be visible after approval.',
           [{ text: 'Go to Home', onPress: () => navigation.navigate('Home') }]);
         // ✅ NO local addNotification call — user doesn't get notified on their own upload
       }
     } catch (error) {
-      Alert.alert('Error', error.message || 'Upload failed. Try again.');
+      showAlert('Error', error.message || 'Upload failed. Try again.');
     } finally { setLoading(false); }
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor={BG} />
+       <CustomAlertModal config={alertConfig} onHide={hideAlert} />
 
       {/* ── HEADER ── */}
       <View style={styles.header}>

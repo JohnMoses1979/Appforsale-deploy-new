@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { forgotPasswordApi } from '../utils/apiService';
+import useCustomAlert from '../utils/useCustomAlert';
+import CustomAlertModal from '../components/CustomAlertModal';
 
 export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail]     = useState('');
@@ -28,6 +30,7 @@ export default function ForgotPasswordScreen({ navigation }) {
   const buttonGlow = useRef(new Animated.Value(0.92)).current;
   const shineMove  = useRef(new Animated.Value(-220)).current;
   const cardBreath = useRef(new Animated.Value(0.985)).current;
+  const { alertConfig, showAlert, hideAlert } = useCustomAlert();
 
   useEffect(() => {
     Animated.parallel([
@@ -72,7 +75,7 @@ export default function ForgotPasswordScreen({ navigation }) {
       navigation.navigate('ResetPassword', { email: email.trim() });
     } catch (err) {
       console.log('❌ Error:', err.message);
-      Alert.alert('Error', err.message);
+      showAlert('Error', err.message);
     } finally {
       setLoading(false);
     }
@@ -81,6 +84,7 @@ export default function ForgotPasswordScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#1D2433" />
+      <CustomAlertModal config={alertConfig} onHide={hideAlert} />
 
       <LinearGradient
         colors={['#141B27', '#212C3D', '#182130']}

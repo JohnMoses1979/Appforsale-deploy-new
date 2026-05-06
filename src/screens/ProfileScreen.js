@@ -9,6 +9,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS } from '../theme';
 import { getProfileApi, updateProfileApi } from '../utils/apiService';
+import useCustomAlert from '../utils/useCustomAlert';
+import CustomAlertModal from '../components/CustomAlertModal';
 
 const DEFAULT_PROFILE_IMAGE = require('../../assets/images/apps/logo.png');
 
@@ -68,6 +70,7 @@ export default function ProfileScreen({ navigation, route }) {
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(false);
+  const { alertConfig, showAlert, hideAlert } = useCustomAlert();
 
   const slideAnim = useRef(new Animated.Value(120)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -129,7 +132,7 @@ export default function ProfileScreen({ navigation, route }) {
 
   const handleSaveProfile = async () => {
     if (!user.id) {
-      Alert.alert('Error', 'User ID not found. Please login again.');
+      showAlert('Error', 'User ID not found. Please login again.');
       return;
     }
 
@@ -166,10 +169,10 @@ export default function ProfileScreen({ navigation, route }) {
       setForm(updatedUser);
       setIsEditing(false);
 
-      Alert.alert('✅ Success', 'Profile updated successfully!');
+      showAlert('✅ Success', 'Profile updated successfully!');
 
     } catch (error) {
-      Alert.alert('Error', error.message || 'Failed to update profile.');
+     showAlert('Error', error.message || 'Failed to update profile.');
     } finally {
       setSaving(false);
     }
@@ -182,6 +185,7 @@ export default function ProfileScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#141B27" />
+      <CustomAlertModal config={alertConfig} onHide={hideAlert} />
 
       <LinearGradient colors={['#141B27', '#212C3D', '#182130']} style={styles.container}>
         <KeyboardAvoidingView

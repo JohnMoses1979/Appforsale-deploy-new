@@ -31,15 +31,23 @@ public class AuthService {
             throw new UserAlreadyExistsException(
                 "This mobile number is already registered.");
 
-        User user = User.builder()
-            .fullName(req.getFullName().trim())
-            .email(email)
-            .mobile(mobile)
-            .password(passwordEncoder.encode(req.getPassword()))
-            .build();
+        // User user = User.builder()
+        //     .fullName(req.getFullName().trim())
+        //     .email(email)
+        //     .mobile(mobile)
+        //     .password(passwordEncoder.encode(req.getPassword()))
+        //     .build();
 
-        User saved = userRepository.save(user);
+        // User saved = userRepository.save(user);
+User user = User.builder()
+        .fullName(req.getFullName().trim())
+        .email(email)
+        .mobile(mobile)
+        .password(passwordEncoder.encode(req.getPassword()))
+        .role("USER")
+        .build();
 
+User saved = userRepository.save(user);
         return AuthResponse.builder()
             .success(true)
             .message("Account created successfully! Welcome aboard.")

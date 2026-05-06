@@ -14,6 +14,9 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { resetPasswordApi } from '../utils/apiService';
+import useCustomAlert from '../utils/useCustomAlert';
+import CustomAlertModal from '../components/CustomAlertModal';
+
 
 export default function ResetPasswordScreen({ navigation, route }) {
   const { email } = route.params;
@@ -26,6 +29,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
 
   const slideAnim = useRef(new Animated.Value(120)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const { alertConfig, showAlert, hideAlert } = useCustomAlert();
 
   useEffect(() => {
     Animated.parallel([
@@ -47,11 +51,11 @@ export default function ResetPasswordScreen({ navigation, route }) {
 
   const handleUpdate = async () => {
     if (!newPassword || !confirmPassword) {
-      Alert.alert('Error', 'Fill all fields');
+      showAlert('Error', 'Fill all fields');
       return;
     }
     if (!match) {
-      Alert.alert('Error', 'Passwords not matching');
+      showAlert('Error', 'Passwords not matching');
       return;
     }
 
@@ -59,11 +63,11 @@ export default function ResetPasswordScreen({ navigation, route }) {
       setLoading(true);
       const res = await resetPasswordApi(email, newPassword);
 
-      Alert.alert('Success', res.message, [
+      showAlert('Success', res.message, [
         { text: 'Login', onPress: () => navigation.navigate('SignIn') },
       ]);
     } catch (err) {
-      Alert.alert('Error', err.message);
+      showAlert('Error', err.message);
     } finally {
       setLoading(false);
     }
@@ -72,6 +76,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#141B27" />
+      <CustomAlertModal config={alertConfig} onHide={hideAlert} />
 
       <LinearGradient
         colors={['#141B27', '#212C3D', '#182130']}

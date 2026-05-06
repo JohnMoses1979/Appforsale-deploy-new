@@ -9,6 +9,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { fetchUserNotificationsApi } from '../utils/apiService';
 import { useNotifications } from '../context/NotificationContext';
 import { Ionicons } from '@expo/vector-icons';
+import useCustomAlert from '../utils/useCustomAlert';
+import CustomAlertModal from '../components/CustomAlertModal';
 
 const BG     = '#0D1117';
 const CARD   = 'rgba(255,255,255,0.04)';
@@ -72,6 +74,7 @@ export default function NotificationsScreen({ navigation, route }) {
   const [notifications, setNotifications] = useState([]);
   const [loading,       setLoading]       = useState(true);
   const [refreshing,    setRefreshing]    = useState(false);
+  const { alertConfig, showAlert, hideAlert } = useCustomAlert();
 
   const loadNotifications = async () => {
     try {
@@ -112,6 +115,7 @@ export default function NotificationsScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor={BG} />
+      <CustomAlertModal config={alertConfig} onHide={hideAlert} />
 
       <View style={styles.header}>
         {/* <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>

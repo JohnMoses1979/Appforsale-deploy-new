@@ -12,6 +12,8 @@ import {
 } from '../utils/apiService';
 import { useMarketplace } from '../context/MarketplaceContext';
 import SharedImageCarousel from '../components/SharedImageCarousel';
+import useCustomAlert from '../utils/useCustomAlert';
+import CustomAlertModal from '../components/CustomAlertModal';
 
 const BG = '#0D1117';
 const CARD_BG = 'rgba(255,255,255,0.04)';
@@ -233,7 +235,7 @@ export default function AdminHomeScreen({ navigation, route }) {
   const headerFade  = useRef(new Animated.Value(0)).current;
   const headerSlide = useRef(new Animated.Value(-16)).current;
   const contentFade = useRef(new Animated.Value(0)).current;
-
+  const { alertConfig, showAlert, hideAlert } = useCustomAlert();
   useEffect(() => {
     Animated.sequence([
       Animated.parallel([
@@ -265,7 +267,7 @@ export default function AdminHomeScreen({ navigation, route }) {
       setStats(statsData || { pending: 0, approved: 0, rejected: 0 });
       setUnreadCount(unread || 0);
     } catch (e) {
-      Alert.alert('Error', 'Could not load data. Pull down to retry.');
+      showAlert('Error', 'Could not load data. Pull down to retry.');
     } finally {
       setLoading(false);
     }
@@ -289,7 +291,7 @@ export default function AdminHomeScreen({ navigation, route }) {
   };
 
   const handleApprove = (app) => {
-    Alert.alert(
+    showAlert(
       'Approve App',
       `Approve "${app.title}"?\n\nIt will go live in the marketplace immediately.`,
       [
@@ -302,10 +304,10 @@ export default function AdminHomeScreen({ navigation, route }) {
               await approveAppApi(app.id);
               setPendingApps(prev => prev.filter(a => a.id !== app.id));
               await refreshApps();
-              Alert.alert('✅ Published!', `"${app.title}" is now live in the marketplace.`);
+              showAlert('✅ Published!', `"${app.title}" is now live in the marketplace.`);
               setTimeout(refreshUnreadCount, 600);
             } catch (e) {
-              Alert.alert('Error', e.message || 'Approve failed. Try again.');
+              showAlert('Error', e.message || 'Approve failed. Try again.');
             } finally {
               setActionLoading(null);
             }
@@ -316,7 +318,7 @@ export default function AdminHomeScreen({ navigation, route }) {
   };
 
   const handleReject = (app) => {
-    Alert.alert(
+    showAlert(
       'Reject App',
       `Reject "${app.title}"?\n\nThis cannot be undone.`,
       [
@@ -330,10 +332,10 @@ export default function AdminHomeScreen({ navigation, route }) {
               await rejectAppApi(app.id);
               setPendingApps(prev => prev.filter(a => a.id !== app.id));
               await refreshApps();
-              Alert.alert('❌ Rejected', `"${app.title}" has been rejected.`);
+              showAlert('❌ Rejected', `"${app.title}" has been rejected.`);
               setTimeout(refreshUnreadCount, 600);
             } catch (e) {
-              Alert.alert('Error', e.message || 'Reject failed. Try again.');
+              showAlertt('Error', e.message || 'Reject failed. Try again.');
             } finally {
               setActionLoading(null);
             }
@@ -344,7 +346,7 @@ export default function AdminHomeScreen({ navigation, route }) {
   };
 
   const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
+    showAlert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Logout', style: 'destructive', onPress: () => navigation.replace('SignIn') },
     ]);
@@ -359,6 +361,7 @@ export default function AdminHomeScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor={BG} />
+      <CustomAlertModal config={alertConfig} onHide={hideAlert} />
 
       {/* ── HEADER ── */}
       <Animated.View style={[styles.header, { opacity: headerFade, transform: [{ translateY: headerSlide }] }]}>
