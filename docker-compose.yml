@@ -1,0 +1,64 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: appforsale-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: appforsale
+      MYSQL_USER:  appuser
+      MYSQL_PASSWORD: apppass123
+    ports:
+      - "3306:3306"
+    networks:
+      - appforsale-network
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: ./backend/appforsale
+      dockerfile: Dockerfile
+    container_name: appforsale-backend
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/appforsale?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: apppass123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    networks:
+      - appforsale-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: appforsale-frontend
+    restart: always
+    ports:
+      - "8081:8081"
+
+    networks:
+      - appforsale-network
+
+networks:
+  appforsale-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+
+
+
+
+
+
+
+
+
+

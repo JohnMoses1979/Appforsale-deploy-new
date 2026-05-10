@@ -1,10 +1,10 @@
 
 
 
-// const BASE_URL = 'http://192.168.1.3:8085/api';
+// const BASE_URL = 'http://3.109.168.34:8080/api';
 
 // const headers = {
-//   'Content-Type': 'application/json',
+//'Content-Type': 'application/json',
 //   Accept: 'application/json',
 // };
 
@@ -1347,7 +1347,7 @@
 // }
 
 
-const BASE_URL = 'http://192.168.1.5:8085/api';
+const BASE_URL = 'http://3.109.168.34:8080/api';
 
 const headers = {
   'Content-Type': 'application/json',
@@ -1389,10 +1389,11 @@ export async function signInApi({ email, password }) {
     }
     return data;
   } catch (error) {
-    if (error.message === 'Network request failed')
+    if (error.message === 'Network request failed') 
       throw new Error('Cannot connect to server. Check your BASE_URL and backend.');
     throw error;
   }
+
 }
 
 export async function forgotPasswordApi(email) {
@@ -1760,9 +1761,10 @@ export async function adminLoginApi({ email, password }) {
 export async function fetchAdminExistsApi() {
   try {
     const response = await fetch(`${BASE_URL}/admin/count`);
-    const count = await response.json();
-    return Number(count) || 0;
+    const data = await response.json();
+    return Number(data?.count ?? 0);
   } catch (error) {
-    throw new Error('Cannot connect to server');
+    console.log('fetchAdminExistsApi error:',error);
+    return 0;
   }
 }
