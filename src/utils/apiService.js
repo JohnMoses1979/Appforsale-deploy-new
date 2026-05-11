@@ -1,7 +1,7 @@
 
 
 
-// const BASE_URL = 'http://3.109.168.34:8080/api';
+// const BASE_URL = 'http://13.235.206.54:8080/api';
 
 // const headers = {
 //'Content-Type': 'application/json',
@@ -479,7 +479,7 @@
 
 // utils/apiService.js
 
-// const BASE_URL = 'http://192.168.1.6:8085/api';
+// const BASE_URL = 'http://13.235.206.548080/api';
 
 // const headers = {
 //   'Content-Type': 'application/json',
@@ -920,7 +920,7 @@
 // }
 
 
-// const BASE_URL = 'http://192.168.1.6:8085/api';
+// const BASE_URL = 'http://13.235.206.54:8080/api';
 
 // const headers = {
 //   'Content-Type': 'application/json',
@@ -1347,7 +1347,7 @@
 // }
 
 
-const BASE_URL = 'http://3.109.168.34:8080/api';
+const BASE_URL = 'http://13.235.206.54:8080/api';
 
 const headers = {
   'Content-Type': 'application/json',
