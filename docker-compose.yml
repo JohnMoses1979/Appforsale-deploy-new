@@ -32,6 +32,8 @@ services:
       - "8080:8080"
     networks:
       - appforsale-network
+    volumes:
+      - ./uploads:/home/ubuntu/Appforsale-deploy/uploads
 
   frontend:
     build:

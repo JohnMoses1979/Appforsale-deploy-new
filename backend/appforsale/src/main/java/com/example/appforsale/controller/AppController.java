@@ -164,7 +164,7 @@ public class AppController {
     public ResponseEntity<?> uploadImages(
             @RequestParam("files") List<MultipartFile> files) {
 
-        String uploadDir = System.getProperty("user.dir") + "/uploads/";
+        String uploadDir = "/home/ubuntu/Appforsale-deploy/uploads/";
         File dir = new File(uploadDir);
         if (!dir.exists()) dir.mkdirs();
 

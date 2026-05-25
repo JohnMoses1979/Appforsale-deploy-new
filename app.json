@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Sat",
-    "slug": "Sat",
+    "name": "appforsale",
+    "slug": "appforsale",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,19 +19,24 @@
       }
     },
     "android": {
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.jayanthi123.Sat"
+      "package": "com.jayanthi123.appforsale"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      "expo-font"
+    ],
     "extra": {
       "eas": {
-        "projectId": "ef0e0528-7c23-4351-9a7c-59b674196f79"
+        "projectId": "a820c4e1-6273-4478-b55a-da67db9867cd"
       }
-    }
+    },
+    "owner": "jayanthi123"
   }
 }
