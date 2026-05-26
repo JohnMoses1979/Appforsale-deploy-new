@@ -1,2 +1,6 @@
+node_modules/
 .expo/
-.expo/
+android/build/
+ios/build/
+*.aar
+*.so

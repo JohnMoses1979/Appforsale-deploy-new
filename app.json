@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.jayanthi123.Sat",
+      "bundleIdentifier": "com.appforsale",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -24,19 +24,28 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.jayanthi123.appforsale"
+      "package": "com.appforsale"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ],
     "extra": {
+      "apiUrl": "http://65.1.250.114:8080",
       "eas": {
-        "projectId": "a820c4e1-6273-4478-b55a-da67db9867cd"
+        "projectId": "af39730e-69dc-4c7a-8d42-f00cfc340fc5"
       }
     },
-    "owner": "jayanthi123"
+    "owner": "jayanthi-bliss"
   }
 }
