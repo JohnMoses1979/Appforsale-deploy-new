@@ -4,3 +4,7 @@ android/build/
 ios/build/
 *.aar
 *.so
+.env
+backend/.env
+uploads/
+.pm2/
