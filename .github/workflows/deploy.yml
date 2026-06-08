@@ -1,0 +1,85 @@
+name: Deploy AppForSale App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: appforsale-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy backend and frontend with Docker Compose
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY_B64 }}" | base64 -d > ~/.ssh/ec2_key
+          chmod 600 ~/.ssh/ec2_key
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        run: |
+          ssh -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i ~/.ssh/ec2_key "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "echo SSH connected successfully"
+
+      - name: Deploy AppForSale
+        run: |
+          ssh -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i ~/.ssh/ec2_key "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" << 'DEPLOY'
+            set -e
+
+            echo "==== Go to AppForSale project ===="
+            cd /home/ubuntu/Appforsale-deploy
+
+            echo "==== Pull latest code ===="
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "==== Check required files ===="
+            test -f docker-compose.yml || (echo "ERROR: docker-compose.yml missing" && exit 1)
+            test -f .env || (echo "ERROR: root .env missing" && exit 1)
+            test -f backend/appforsale/.env || (echo "ERROR: backend/appforsale/.env missing" && exit 1)
+
+            echo "==== Check Docker Compose config ===="
+            sudo docker compose config
+
+            echo "==== Check MySQL container ===="
+            MYSQL_STATUS=$(sudo docker inspect --format='{{.State.Status}}' appforsale-mysql 2>/dev/null || echo "missing")
+            echo "MySQL status: $MYSQL_STATUS"
+
+            if [ "$MYSQL_STATUS" = "missing" ]; then
+              echo "MySQL container missing. Starting full Docker Compose stack."
+              sudo docker compose up -d --build
+            else
+              echo "MySQL exists. Checking MySQL ping."
+              sudo docker exec appforsale-mysql sh -lc 'mysqladmin ping -h127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD"' || {
+                echo "ERROR: MySQL is not responding. CI/CD stopped safely."
+                sudo docker ps -a
+                exit 1
+              }
+
+              echo "==== Build backend and frontend ===="
+              sudo docker compose build backend frontend
+
+              echo "==== Recreate backend and frontend only ===="
+              sudo docker compose up -d --no-deps --force-recreate backend frontend
+            fi
+
+            echo "==== Docker status ===="
+            sudo docker ps
+
+            echo "==== Backend test ===="
+            curl -I http://localhost:8080 || true
+
+            echo "==== Frontend test ===="
+            curl -I http://localhost:8081 || true
+
+            echo "==== Deployment completed successfully ===="
+          DEPLOY
