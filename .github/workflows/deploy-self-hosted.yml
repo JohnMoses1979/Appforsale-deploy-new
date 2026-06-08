@@ -1,0 +1,44 @@
+name: Deploy AppForSale Docker Self Hosted
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy on EC2 Self Hosted Runner
+    runs-on: [self-hosted, appforsale]
+
+    steps:
+      - name: Deploy latest code with Docker Compose
+        run: |
+          set -e
+
+          echo "Current user:"
+          whoami
+
+          echo "Going to project folder..."
+          cd /home/ubuntu/Appforsale-deploy
+
+          echo "Checking git remote..."
+          git remote -v
+
+          echo "Pulling latest code from GitHub..."
+          git fetch origin main
+          git reset --hard origin/main
+
+          echo "Checking Docker Compose config..."
+          docker compose config
+
+          echo "Building and restarting containers..."
+          docker compose up -d --build
+
+          echo "Showing running containers..."
+          docker ps
+
+          echo "Testing backend locally..."
+          curl -i http://localhost:8080 || true
+
+          echo "Deployment finished successfully."
