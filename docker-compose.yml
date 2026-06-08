@@ -42,7 +42,7 @@ services:
     container_name: appforsale-frontend
     restart: always
     ports:
-      - "8081:8081"
+      - "8082:8081"
 
     networks:
       - appforsale-network
