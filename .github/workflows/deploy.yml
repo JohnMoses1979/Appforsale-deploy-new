@@ -16,14 +16,14 @@ jobs:
     runs-on: [self-hosted, appforsale]
 
     steps:
-      - name: Deploy using Docker Compose
+      - name: Deploy latest code with Docker Compose
         run: |
           set -e
 
           echo "==== Current user ===="
           whoami
 
-          echo "==== Go to project ===="
+          echo "==== Go to project folder ===="
           cd /home/ubuntu/Appforsale-deploy
 
           echo "==== Pull latest code ===="
@@ -37,10 +37,12 @@ jobs:
 
           echo "==== Docker version ===="
           sudo docker --version
-          sudo docker compose version
 
-          echo "==== Docker Compose config ===="
-          sudo docker compose config
+          echo "==== Docker Compose version ===="
+          sudo docker-compose --version
+
+          echo "==== Docker Compose config check ===="
+          sudo docker-compose config
 
           echo "==== Check MySQL container ===="
           MYSQL_STATUS=$(sudo docker inspect --format='{{.State.Status}}' appforsale-mysql 2>/dev/null || echo "missing")
@@ -48,20 +50,20 @@ jobs:
 
           if [ "$MYSQL_STATUS" = "missing" ]; then
             echo "MySQL missing. Starting full stack..."
-            sudo docker compose up -d --build
+            sudo docker-compose up -d --build
           else
             echo "MySQL exists. Checking MySQL ping..."
             sudo docker exec appforsale-mysql sh -lc 'mysqladmin ping -h127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD"' || {
-              echo "ERROR: MySQL is not responding. CI/CD stopped safely."
+              echo "ERROR: MySQL is not responding. Deployment stopped safely."
               sudo docker ps -a
               exit 1
             }
 
             echo "==== Build backend and frontend only ===="
-            sudo docker compose build backend frontend
+            sudo docker-compose build backend frontend
 
             echo "==== Recreate backend and frontend only ===="
-            sudo docker compose up -d --no-deps --force-recreate backend frontend
+            sudo docker-compose up -d --no-deps --force-recreate backend frontend
           fi
 
           echo "==== Docker status ===="
