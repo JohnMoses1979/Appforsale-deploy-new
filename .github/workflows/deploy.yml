@@ -73,6 +73,6 @@ jobs:
           curl -I http://localhost:8080 || true
 
           echo "==== Frontend test ===="
-          curl -I http://localhost:8081 || true
+          curl -I http://localhost:8082 || true
 
           echo "==== Deployment completed successfully ===="
