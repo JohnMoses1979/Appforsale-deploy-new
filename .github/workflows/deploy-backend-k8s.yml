@@ -1,0 +1,56 @@
+name: Deploy Backend to K3s Kubernetes
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Build and Deploy Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy backend on EC2 Kubernetes
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
+
+            echo "Going to project folder..."
+            cd /home/ubuntu/Appforsale-deploy
+
+            echo "Pulling latest code..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "Building backend Docker image..."
+            docker build -t appforsale-deploy-backend:latest ./backend/appforsale
+
+            echo "Importing image into K3s..."
+            docker save appforsale-deploy-backend:latest -o /home/ubuntu/appforsale-backend.tar
+            sudo k3s ctr images import /home/ubuntu/appforsale-backend.tar
+
+            echo "Restarting Kubernetes backend deployment..."
+            kubectl rollout restart deployment/appforsale-backend -n appforsale
+
+            echo "Waiting for rollout to complete..."
+            kubectl rollout status deployment/appforsale-backend -n appforsale --timeout=180s
+
+            echo "Current pods:"
+            kubectl get pods -n appforsale
+
+            echo "Testing backend:"
+            curl -i http://localhost:30080 || true
+
+            echo "Deployment completed successfully."
+          EOF
